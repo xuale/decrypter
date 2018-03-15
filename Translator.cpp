@@ -14,12 +14,12 @@ public:
     string getTranslation(const string& ciphertext) const;
 private:
     MyHash<char, vector<char> > m_table; // Maps from a character to a history of its translations
-    vector<string> m_history;
+    vector<string> m_history; // Stores previous ciphertexts
 };
 
 TranslatorImpl::TranslatorImpl()
 {
-    string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"; // All uppercase
     for (int i = 0; i < alphabet.size(); i++)
     {
         vector<char> history(1, '?');
@@ -33,10 +33,10 @@ bool TranslatorImpl::pushMapping(string ciphertext, string plaintext)
     for (int i = 0; i < ciphertext.size(); i++)
     {
         vector<char>* history = m_table.find(toupper(ciphertext[i])); // Every character in our table will be uppercased
-        history->push_back(toupper(plaintext[i]));
+        history->push_back(toupper(plaintext[i])); // Add a new translation to the end
     }
     m_history.push_back(ciphertext); // We will uppercase this later, when we need it
-    return true;  // This compiles, but may not be correct
+    return true;
 }
 
 bool TranslatorImpl::popMapping()
@@ -45,11 +45,11 @@ bool TranslatorImpl::popMapping()
     {
         return false;
     }
-    string mostRecent = m_history[m_history.size() - 1];
+    string mostRecent = m_history[m_history.size() - 1]; // Our most recent translation
     for (int i = 0; i < mostRecent.size(); i++)
     {
         vector<char>* history = m_table.find(toupper(mostRecent[i]));
-        history->pop_back();
+        history->pop_back(); // Undo our most recent translation by rolling each array back by one
     }
     m_history.pop_back();
     return true;  // This compiles, but may not be correct
@@ -60,18 +60,18 @@ string TranslatorImpl::getTranslation(const string& ciphertext) const
     string res = "";
     for (int i = 0; i < ciphertext.size(); i++)
     {
-        const vector<char>* p = m_table.find(toupper(ciphertext[i]));
+        const vector<char>* p = m_table.find(toupper(ciphertext[i])); // Find corresponding translation
         if (isalpha(ciphertext[i]))
         {
             if (p == nullptr)
             {
-                res += '?';
+                res += '?'; // No existing translations
             }
             else
             {
-                if(islower(ciphertext[i]))
+                if(islower(ciphertext[i])) // Case characters appropriately, given that they're stored in uppercase
                 {
-                    res += tolower((*p)[p->size() - 1]);
+                    res += tolower((*p)[p->size() - 1]); // Last element is the most recent translation
                 }
                 else
                 {
@@ -81,11 +81,10 @@ string TranslatorImpl::getTranslation(const string& ciphertext) const
         }
         else
         {
-            res += ciphertext[i];
+            res += ciphertext[i]; // Add all non-alphabetic characters
         }
     }
-//    cout << ciphertext << " " << res << endl;
-    return res; // This compiles, but may not be correct
+    return res;
 }
 
 //******************** Translator functions ************************************

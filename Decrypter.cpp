@@ -38,7 +38,7 @@ void DecrypterImpl::crackBacktracking(vector<string>& res, const string& origina
     vector<string> translation;
     for (int i = 0; i < m_words.size(); i++)
     {
-        translation.push_back(mapping.getTranslation(m_words[i]));
+        translation.push_back(mapping.getTranslation(m_words[i])); // Translate every word with our "new" mapping
         int cnt = 0;
         for (int j = 0; j < translation[i].size(); j++)
         {
@@ -49,12 +49,12 @@ void DecrypterImpl::crackBacktracking(vector<string>& res, const string& origina
         }
         if (cnt == 0)
         {
-            if (!m_list.contains(translation[i])) // Abort if the word doesn't exist
+            if (!m_list.contains(translation[i])) // Abort if a completed word doesn't exist
             {
                 return;
             }
         }
-        if (cnt > maxCnt)
+        if (cnt > maxCnt) // We find the one with the most "?"s
         {
             maxCnt = cnt;
             maxIdx = i;
@@ -66,7 +66,7 @@ void DecrypterImpl::crackBacktracking(vector<string>& res, const string& origina
         int trIdx = 0;
         for (int i = 0; i < originaltext.size(); i++)
         {
-            if(!isalpha(originaltext[i]))
+            if(!isalpha(originaltext[i])) // Insert punctuation from the original text
             {
                 fullTranslation += originaltext[i];
             }
@@ -77,26 +77,28 @@ void DecrypterImpl::crackBacktracking(vector<string>& res, const string& origina
                 trIdx++;
             }
         }
-        res.push_back(fullTranslation);
+        res.push_back(fullTranslation); // Add the possible translation to our vector
         return;
     }
-    string choice = m_words[maxIdx];
+    
+    string choice = m_words[maxIdx]; // We will use this to test our mapping
     vector<string> possibilities = m_list.findCandidates(choice, translation[maxIdx]);
     
     if (possibilities.size() == 0) // Abort if no matching words are found
     {
         return;
     }
+    
     for (int i = 0; i < possibilities.size(); i++)
     {
         string possibility = possibilities[i];
         string ciphertext = "";
         string plaintext = "";
-        MyHash<char, char> m_usedChars;
+        MyHash<char, char> m_usedChars; // Use this to keep track of repeated letters in a single word
         for (int j = 0; j < possibility.size(); j++)
         {
             char* prevMappingInLoop = m_usedChars.find(choice[j]);
-            string prevMappingInMap = mapping.getTranslation(string(1,choice[j]));
+            string prevMappingInMap = mapping.getTranslation(string(1,choice[j])); // Find previous mapping in Translator
             if (prevMappingInLoop != nullptr && *prevMappingInLoop == possibility[j])
             {
                 continue;
@@ -107,15 +109,15 @@ void DecrypterImpl::crackBacktracking(vector<string>& res, const string& origina
             }
             if (prevMappingInMap != "?" && prevMappingInMap != string(1,possibility[j]))
             {
-                return;
+                return; // No conflicting mappings allowed
             }
             ciphertext += choice[j];
             plaintext += possibility[j];
             m_usedChars.associate(choice[j], possibility[j]);
         }
-        mapping.pushMapping(ciphertext, plaintext);
+        mapping.pushMapping(ciphertext, plaintext); // Try with our new mapping
         crackBacktracking(res, originaltext, mapping);
-        mapping.popMapping();
+        mapping.popMapping(); // BACKTRACK!
     }
 }
 

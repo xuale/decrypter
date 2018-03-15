@@ -15,8 +15,8 @@ public:
     bool contains(string word) const;
     vector<string> findCandidates(string cipherWord, string currTranslation) const;
 private:
-    MyHash<string, vector<string> > m_table;
-    MyHash<string, bool> m_set;
+    MyHash<string, vector<string> > m_table; // Map of patterns to matching words
+    MyHash<string, bool> m_set; // Set of existing words
     
     string generateLetterPattern(string str) const;
 };
@@ -36,7 +36,7 @@ bool WordListImpl::loadWordList(string filename)
         bool continueFlag = true;
         for (int i = 0; i < s.size(); i++)
         {
-            if(!isalpha(s[i]) && s[i] != '\'' )
+            if(!isalpha(s[i]) && s[i] != '\'' ) // Make sure only apostrophes and characters pass through
             {
                 continueFlag = false;
             }
@@ -47,20 +47,20 @@ bool WordListImpl::loadWordList(string filename)
         if (ptr == nullptr)
         {
             vector<string> vec(1, s);
-            m_table.associate(pattern, vec);
+            m_table.associate(pattern, vec); // Create new vector with pattern if not already mapped
         }
         else
         {
-            if (find(ptr->begin(), ptr->end(), s) == ptr->end())
+            if (find(ptr->begin(), ptr->end(), s) == ptr->end()) // Eliminates repeated words
             {
-                ptr->push_back(s);
+                ptr->push_back(s); // Add to existing pattern if mapping already exists
             }
         }
         for (int i = 0; i < s.size(); i++)
         {
-            s[i] = tolower(s[i]);
+            s[i] = tolower(s[i]); // store lowercased for consistency
         }
-        m_set.associate(s, true);
+        m_set.associate(s, true); // mark as existing
     }
     return true;
 }
@@ -69,7 +69,7 @@ bool WordListImpl::contains(string word) const
 {
     for (int i = 0; i < word.size(); i++)
     {
-        word[i] = tolower(word[i]);
+        word[i] = tolower(word[i]); // lowercase all letters, since we store them lowercased
     }
     return m_set.find(word) == nullptr ? false : true;
 }
@@ -128,21 +128,21 @@ string WordListImpl::generateLetterPattern(string str) const
     for(int i = 0; i < str.size(); i++)
     {
         str[i] = tolower(str[i]); // Keep lowercased for consistency
-        if (str[i] == '\'')
+        if (str[i] == '\'') // Keep apostrophes intact
         {
             res += '\'';
             continue;
         }
-        char* idx = charset.find(str[i]);
+        char* idx = charset.find(str[i]); // Check if this character was already mapped to a generic pattern one
         if(idx == nullptr)
         {
-            charset.associate(str[i], alphabet[alphIdx]);
+            charset.associate(str[i], alphabet[alphIdx]); // If not, choose the next alphabetic character to map to it
             res += alphabet[alphIdx];
             alphIdx++;
         }
         else
         {
-            res += *idx;
+            res += *idx; // If yes, use the existing one
         }
     }
     return res;

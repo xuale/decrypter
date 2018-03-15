@@ -10,7 +10,7 @@ public:
     TokenizerImpl(string separators);
     vector<string> tokenize(const std::string& s) const;
 private:
-    unordered_set<char> m_separators;
+    unordered_set<char> m_separators; // Unordered set allows for O(1) lookup
 };
 
 TokenizerImpl::TokenizerImpl(string separators)
@@ -28,18 +28,18 @@ vector<string> TokenizerImpl::tokenize(const std::string& s) const
     int i = 0;
     while (i < s.size())
     {
-        if(m_separators.find(s[i]) != m_separators.end())
+        if(m_separators.find(s[i]) != m_separators.end()) // Check if char is container or not
         {
             if (word != "")
             {
-                res.push_back(word);
-                word = "";
+                res.push_back(word); // Record as complete word
+                word = ""; // Reset to empty string
             }
         }
         else
         {
             word += s[i];
-            if (i == s.size() - 1)
+            if (i == s.size() - 1) // Mark as complete word if overall last word is a character
             {
                 res.push_back(word);
             }

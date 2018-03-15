@@ -81,7 +81,7 @@ MyHash<KeyType, ValueType>::~MyHash()
     for (int i = 0; i < m_capacity; i++) // Deallocate all buckets
     {
         Bucket* p = m_map[i];
-        while(p != nullptr )
+        while(p != nullptr ) // Deallocate "linked lists"
         {
             Bucket* toDelete = p;
             p = p->next;
@@ -94,7 +94,7 @@ MyHash<KeyType, ValueType>::~MyHash()
 template<typename KeyType, typename ValueType>
 void MyHash<KeyType, ValueType>::reset()
 {
-    for (int i = 0; i < m_capacity; i++) // Deallocate all buckets
+    for (int i = 0; i < m_capacity; i++) // Basically same as destructor + constructor
     {
         Bucket* p = m_map[i];
         while(p != nullptr)
@@ -119,7 +119,7 @@ template<typename KeyType, typename ValueType>
 void MyHash<KeyType, ValueType>::associate(const KeyType& key, const ValueType& value)
 {
     ValueType* prevIdx = find(key);
-    if (prevIdx != nullptr)
+    if (prevIdx != nullptr) // We only update the previous value if the key already exists
     {
         *prevIdx = value;
         return;
@@ -129,11 +129,11 @@ void MyHash<KeyType, ValueType>::associate(const KeyType& key, const ValueType& 
     if (m_currLoadFactor > m_maxLoadFactor )
     {
         // resize
-        m_capacity *= 2;
+        m_capacity *= 2; // Changing it here makes for more concise code later
         transferMap();
     }
-    int idx = getBucketNumber(key);
-    Bucket* newBucket = new Bucket(key, value, m_map[idx]);
+    int idx = getBucketNumber(key); // No matter what, we create an accurate hashed idx for our key
+    Bucket* newBucket = new Bucket(key, value, m_map[idx]); // Add it to the front of the "linked list"
     m_map[idx] = newBucket;
 }
 
@@ -154,7 +154,7 @@ const ValueType* MyHash<KeyType, ValueType>::find(const KeyType& key) const
 {
     int idx = getBucketNumber(key);
     Bucket* p = m_map[idx];
-    while (p != nullptr)
+    while (p != nullptr) // Iterate through the linked list until we find our target
     {
         if(p->key == key)
         {
@@ -162,37 +162,37 @@ const ValueType* MyHash<KeyType, ValueType>::find(const KeyType& key) const
         }
         p = p->next;
     }
-    return nullptr;
+    return nullptr; // This means it wasn't found
 }
 
 template<typename KeyType, typename ValueType>
 unsigned int MyHash<KeyType, ValueType>::getBucketNumber(const KeyType& key) const
 {
     unsigned int hash(const KeyType& k);
-    return hash(key) % m_capacity;
+    return hash(key) % m_capacity; // Mod by m_capacity to make sure it fits in our array
 }
 
 template<typename KeyType, typename ValueType>
 void MyHash<KeyType, ValueType>::transferMap()
 {
-    Bucket** newMap = new Bucket*[m_capacity];
+    Bucket** newMap = new Bucket*[m_capacity]; // Allocate new block of 2x memory
     for (int i = 0; i < m_capacity; i++)
     {
-        newMap[i] = nullptr;
+        newMap[i] = nullptr; // Must set to nullptr, so that future buckets will "terminate"
     }
-    for(int i = 0; i < m_capacity / 2; i++)
+    for(int i = 0; i < m_capacity / 2; i++) // Iterate through old hash
     {
         Bucket* p = m_map[i];
         while (p != nullptr)
         {
-            Bucket* temp = p->next;
+            Bucket* temp = p->next; // Must store in temp, since we continue to iterate w/ p
             int newIdx = getBucketNumber(p->key); // Recalculate index
-            p->next = newMap[newIdx]; // Add to new map at new index
+            p->next = newMap[newIdx]; // Add to front of new linked list
             newMap[newIdx] = p;
             p = temp;
         }
     }
-    delete [] m_map;
+    delete [] m_map; // Deallocate old block of memory
     m_map = newMap; // Switch to new array
 }
 
