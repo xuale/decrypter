@@ -15,8 +15,8 @@ public:
 private:
     MyHash<char, vector<char> > m_table; // Maps from a character to a history of its translations
     vector<string> m_history; // Stores previous ciphertexts
-//    MyHash<char, vector<char> > m_tableReverse; // Maps from a character to a history of its translations
-//    vector<string> m_historyReverse; // Stores previous ciphertexts
+    MyHash<char, vector<char> > m_tableReverse; // Maps from a character to a history of its translations
+    vector<string> m_historyReverse; // Stores previous ciphertexts
     
 };
 
@@ -27,7 +27,7 @@ TranslatorImpl::TranslatorImpl()
     {
         vector<char> history(1, '?'); // default starting history
         m_table.associate(alphabet[i], history);
-//        m_tableReverse.associate(alphabet[i], history);
+        m_tableReverse.associate(alphabet[i], history);
     }
 }
 
@@ -43,23 +43,23 @@ bool TranslatorImpl::pushMapping(string ciphertext, string plaintext)
         {
             return false;
         }
-//        vector<char>* historyReverse = m_tableReverse.find(toupper(plaintext[i]))
-//        if(historyReverse == nullptr) continue;
-//        char cipher = (*historyReverse)[historyReverse->size() - 1];
-//        if (cipher != '?' && cipher != ciphertext[i])
-//        {
-//            return false;
-//        }
+        vector<char>* historyReverse = m_tableReverse.find(toupper(plaintext[i]));
+        if(historyReverse == nullptr) continue;
+        char cipher = (*historyReverse)[historyReverse->size() - 1];
+        if (cipher != '?' && cipher != ciphertext[i])
+        {
+            return false;
+        }
     }
     for (int i = 0; i < ciphertext.size(); i++)
     {
         vector<char>* history = m_table.find(toupper(ciphertext[i])); // Every character in our table will be uppercased
         history->push_back(toupper(plaintext[i])); // Add a new translation to the end
-//        vector<char>* historyReverse = m_tableReverse.find(toupper(plaintext[i])); // Every character in our table will be uppercased
-//        historyReverse->push_back(toupper(ciphertext[i])); // Add a new translation to the end
+        vector<char>* historyReverse = m_tableReverse.find(toupper(plaintext[i])); // Every character in our table will be uppercased
+        historyReverse->push_back(toupper(ciphertext[i])); // Add a new translation to the end
     }
     m_history.push_back(ciphertext); // We will uppercase this later, when we need it
-//    m_historyReverse.push_back(plaintext);
+    m_historyReverse.push_back(plaintext);
     return true;
 }
 
@@ -75,14 +75,14 @@ bool TranslatorImpl::popMapping()
         vector<char>* history = m_table.find(toupper(mostRecent[i]));
         history->pop_back(); // Undo our most recent translation by rolling each array back by one
     }
-//    string mostRecentReverse = m_historyReverse[m_historyReverse.size() - 1];
-//    for (int i = 0; i < mostRecent.size(); i++)
-//    {
-//        vector<char>* historyReverse = m_tableReverse.find(toupper(mostRecentReverse[i]));
-//        historyReverse->pop_back(); // Undo our most recent translation by rolling each array back by one
-//    }
+    string mostRecentReverse = m_historyReverse[m_historyReverse.size() - 1];
+    for (int i = 0; i < mostRecent.size(); i++)
+    {
+        vector<char>* historyReverse = m_tableReverse.find(toupper(mostRecentReverse[i]));
+        historyReverse->pop_back(); // Undo our most recent translation by rolling each array back by one
+    }
     m_history.pop_back();
-//    m_historyReverse.pop_back();
+    m_historyReverse.pop_back();
     return true;  // This compiles, but may not be correct
 }
 

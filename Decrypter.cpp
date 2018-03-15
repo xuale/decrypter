@@ -115,7 +115,7 @@ void DecrypterImpl::crackBacktracking(vector<string>& res, const string& origina
             plaintext += possibility[j];
             m_usedChars.associate(choice[j], possibility[j]);
         }
-        mapping.pushMapping(ciphertext, plaintext); // Try with our new mapping
+        if (!mapping.pushMapping(ciphertext, plaintext)) return; // Try with our new mapping
         crackBacktracking(res, originaltext, mapping);
         mapping.popMapping(); // BACKTRACK!
     }
