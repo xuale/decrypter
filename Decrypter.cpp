@@ -2,6 +2,7 @@
 #include "MyHash.h"
 #include <string>
 #include <vector>
+#include <iostream>
 using namespace std;
 
 class DecrypterImpl
@@ -25,6 +26,8 @@ vector<string> DecrypterImpl::crack(const string& ciphertext)
     Tokenizer t(" ,;:.!()[]{}-\"#$%^&1234567890");
     m_words = t.tokenize(ciphertext);
     vector<string> res;
+    Translator tr;
+    crackBacktracking(res, ciphertext, tr);
     return res;  // This compiles, but may not be correct
 }
 
@@ -70,7 +73,7 @@ void DecrypterImpl::crackBacktracking(vector<string>& res, const string& origina
             else
             {
                 fullTranslation += translation[trIdx];
-                i += trIdx;
+                i += translation[trIdx].size() - 1;
                 trIdx++;
             }
         }
@@ -79,6 +82,7 @@ void DecrypterImpl::crackBacktracking(vector<string>& res, const string& origina
     }
     string choice = m_words[maxIdx];
     vector<string> possibilities = m_list.findCandidates(choice, translation[maxIdx]);
+    
     if (possibilities.size() == 0) // Abort if no matching words are found
     {
         return;
@@ -97,11 +101,11 @@ void DecrypterImpl::crackBacktracking(vector<string>& res, const string& origina
             {
                 continue;
             }
-            if (prevMappingInLoop == string(1,possibility[j]))
+            if (prevMappingInMap == string(1,possibility[j]))
             {
                 continue;
             }
-            if (prevMappingInLoop != "?" && prevMappingInLoop != string(1,possibility[j]))
+            if (prevMappingInMap != "?" && prevMappingInMap != string(1,possibility[j]))
             {
                 return;
             }

@@ -5,6 +5,7 @@
 #include <functional>
 #include <fstream>
 #include <cctype>
+#include <iostream>
 using namespace std;
 
 class WordListImpl
