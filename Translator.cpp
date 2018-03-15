@@ -37,12 +37,14 @@ bool TranslatorImpl::pushMapping(string ciphertext, string plaintext)
     for (int i = 0; i < ciphertext.size(); i++)
     {
         vector<char>* history = m_table.find(toupper(ciphertext[i]));
+        if (history == nullptr) continue;
         char plain = (*history)[history->size() - 1];
         if (plain != '?' && plain != plaintext[i])
         {
             return false;
         }
-//        vector<char>* historyReverse = m_tableReverse.find(toupper(plaintext[i]));
+//        vector<char>* historyReverse = m_tableReverse.find(toupper(plaintext[i]))
+//        if(historyReverse == nullptr) continue;
 //        char cipher = (*historyReverse)[historyReverse->size() - 1];
 //        if (cipher != '?' && cipher != ciphertext[i])
 //        {
