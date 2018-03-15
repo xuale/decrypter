@@ -60,7 +60,6 @@ void DecrypterImpl::crackBacktracking(vector<string>& res, const string& origina
             maxIdx = i;
         }
     }
-    
     if (maxIdx == -1) // All words have been correctly translated
     {
         string fullTranslation = "";
@@ -92,31 +91,35 @@ void DecrypterImpl::crackBacktracking(vector<string>& res, const string& origina
     for (int i = 0; i < possibilities.size(); i++)
     {
         string possibility = possibilities[i];
+
         string ciphertext = "";
         string plaintext = "";
         MyHash<char, char> m_usedChars; // Use this to keep track of repeated letters in a single word
+        bool abortFlag = false;
         for (int j = 0; j < possibility.size(); j++)
         {
             char* prevMappingInLoop = m_usedChars.find(tolower(choice[j]));
             string prevMappingInMap = mapping.getTranslation(string(1,tolower(choice[j]))); // Find previous mapping in Translator
-            if (prevMappingInMap != "?" && prevMappingInMap != string(1,possibility[j]))
+            if (prevMappingInMap != "?" && prevMappingInMap != string(1,tolower(possibility[j])))
             {
-                return; // No conflicting mappings allowed
+                abortFlag = true; // No conflicting mappings allowed
+                break;
             }
-            if (prevMappingInLoop != nullptr && *prevMappingInLoop == possibility[j])
-            {
-                continue;
-            }
-            if (prevMappingInMap == string(1,possibility[j]))
+            if (prevMappingInLoop != nullptr && *prevMappingInLoop == tolower(possibility[j]))
             {
                 continue;
             }
-            
+            if (prevMappingInMap == string(1,tolower(possibility[j])))
+            {
+                continue;
+            }
             ciphertext += choice[j];
             plaintext += possibility[j];
             m_usedChars.associate(tolower(choice[j]), tolower(possibility[j]));
         }
-        if (!mapping.pushMapping(ciphertext, plaintext)) return; // Try with our new mapping
+        if (abortFlag) continue;
+
+        if (!mapping.pushMapping(ciphertext, plaintext)) continue; // Try with our new mapping
         crackBacktracking(res, originaltext, mapping);
         mapping.popMapping(); // BACKTRACK!
     }
