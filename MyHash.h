@@ -2,8 +2,6 @@
 
 // Skeleton for the MyHash class template.  You must implement the first seven
 // member functions; we have implemented the eighth.
-#include <iostream>
-using namespace std;
 template<typename KeyType, typename ValueType>
 class MyHash
 {
