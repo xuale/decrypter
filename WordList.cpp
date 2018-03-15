@@ -96,10 +96,11 @@ vector<string> WordListImpl::findCandidates(string cipherWord, string currTransl
     for(int i = 0; i < patternMatches->size(); i++)
     {
         string match = (*patternMatches)[i];
+        
         bool matches = true;
         for(int j = 0; j < match.size(); j++)
         {
-            if (isalpha(currTranslation[j]) && currTranslation[j] != match[j]) // If the curr translation has a definite letter
+            if (isalpha(currTranslation[j]) && tolower(currTranslation[j]) != tolower(match[j])) // If the curr translation has a definite letter
             {
                 matches = false;
             }
@@ -111,6 +112,7 @@ vector<string> WordListImpl::findCandidates(string cipherWord, string currTransl
             {
                 matches = false;
             }
+            
         }
         if(matches)
         {

@@ -60,6 +60,7 @@ void DecrypterImpl::crackBacktracking(vector<string>& res, const string& origina
             maxIdx = i;
         }
     }
+    
     if (maxIdx == -1) // All words have been correctly translated
     {
         string fullTranslation = "";
@@ -83,7 +84,6 @@ void DecrypterImpl::crackBacktracking(vector<string>& res, const string& origina
     
     string choice = m_words[maxIdx]; // We will use this to test our mapping
     vector<string> possibilities = m_list.findCandidates(choice, translation[maxIdx]);
-    
     if (possibilities.size() == 0) // Abort if no matching words are found
     {
         return;
@@ -97,8 +97,12 @@ void DecrypterImpl::crackBacktracking(vector<string>& res, const string& origina
         MyHash<char, char> m_usedChars; // Use this to keep track of repeated letters in a single word
         for (int j = 0; j < possibility.size(); j++)
         {
-            char* prevMappingInLoop = m_usedChars.find(choice[j]);
-            string prevMappingInMap = mapping.getTranslation(string(1,choice[j])); // Find previous mapping in Translator
+            char* prevMappingInLoop = m_usedChars.find(tolower(choice[j]));
+            string prevMappingInMap = mapping.getTranslation(string(1,tolower(choice[j]))); // Find previous mapping in Translator
+            if (prevMappingInMap != "?" && prevMappingInMap != string(1,possibility[j]))
+            {
+                return; // No conflicting mappings allowed
+            }
             if (prevMappingInLoop != nullptr && *prevMappingInLoop == possibility[j])
             {
                 continue;
@@ -107,13 +111,10 @@ void DecrypterImpl::crackBacktracking(vector<string>& res, const string& origina
             {
                 continue;
             }
-            if (prevMappingInMap != "?" && prevMappingInMap != string(1,possibility[j]))
-            {
-                return; // No conflicting mappings allowed
-            }
+            
             ciphertext += choice[j];
             plaintext += possibility[j];
-            m_usedChars.associate(choice[j], possibility[j]);
+            m_usedChars.associate(tolower(choice[j]), tolower(possibility[j]));
         }
         if (!mapping.pushMapping(ciphertext, plaintext)) return; // Try with our new mapping
         crackBacktracking(res, originaltext, mapping);

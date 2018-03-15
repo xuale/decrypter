@@ -3,6 +3,7 @@
 #include <string>
 #include <cctype>
 #include <vector>
+#include <iostream>
 using namespace std;
 
 class TranslatorImpl
@@ -34,6 +35,7 @@ TranslatorImpl::TranslatorImpl()
 bool TranslatorImpl::pushMapping(string ciphertext, string plaintext)
 {
     if (ciphertext.size() != plaintext.size()) return false;
+    if (ciphertext.size() == 0 || plaintext.size() == 0) return false;
     for (int i = 0; i < ciphertext.size(); i++)
     {
         vector<char>* history = m_table.find(toupper(ciphertext[i]));
