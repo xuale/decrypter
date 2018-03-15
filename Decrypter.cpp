@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
 class DecrypterImpl
@@ -28,6 +29,7 @@ vector<string> DecrypterImpl::crack(const string& ciphertext)
     vector<string> res;
     Translator tr;
     crackBacktracking(res, ciphertext, tr);
+    sort(res.begin(), res.end());
     return res;  // This compiles, but may not be correct
 }
 
